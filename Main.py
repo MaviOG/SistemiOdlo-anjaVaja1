@@ -129,6 +129,7 @@ def HurwitzevKriterij(Header,Pozitiv,Negativ):
             HurwitzevArray.append(Hurwitzev((y/10),Pozitiv[z],Negativ[z]))
         print(str(y/10).ljust(spacingNumber), end='')
         print(" ".join(str(header).ljust(spacing) for header in HurwitzevArray[:]))
+    print("Ustvarjena datoteka z grafom ('plot.png')")
 
 def HurwitzevKriterijPNG(Header, Pozitiv, Negativ):
     ALLHurwitzevArray = []
@@ -159,6 +160,7 @@ def DrawGraf(lst,header):
         povecava += 1
     plt.legend()
     plt.savefig('plot.png')
+    
     
 
 if __name__ == '__main__':
