@@ -12,7 +12,6 @@ def main():
     Negativ =[]
     PNGFile = "graf.png"
     PNGData = ""
-
     #Main
     IniFilePath = GetConfig()
     FilePath = GetFile(IniFilePath)
@@ -22,7 +21,6 @@ def main():
     CreatePNGAndSave(PNGFile, PNGData,len(Header))
     Output(FilePath,Header,Optimist(Pozitiv),Pesimist(Negativ),Laplace(Pozitiv,Negativ),Savage(Pozitiv,Negativ),Negativ,Pozitiv,PNGFile)
     
-    
 def CreatePNGAndSave(filename, text,lenght):
     fnt = ImageFont.truetype('arial.ttf', 40)
     image = Image.new(mode="RGB", size=((lenght*300),800), color="white")
@@ -31,8 +29,6 @@ def CreatePNGAndSave(filename, text,lenght):
     image.save(filename)
     print(f"Image '{filename}' saved successfully.")
     
-
-
 def Savage(Pozitivno,Negativno):
     SavagePozitiv = []
     SavageNegativ = []
@@ -56,7 +52,7 @@ def Laplace(Pozitivno,Negativno):
 def Optimist(List):#Izbere najvecjo stevilko
     return max(List)
 def Pesimist(List):
-    return min(List)
+    return max(List)
 
 def ReadCsvAndReturnValues(Header,path):
     FirstLine = []
@@ -73,7 +69,6 @@ def ReadCsvAndReturnValues(Header,path):
                 for row in reader:
                     
                     if LineCounter % 2 == 0:
-                        
                         FirstLine.append(int(row[string]))
                         LineCounter +=1
                     else:
@@ -116,8 +111,6 @@ def Output(FilePath,Header,Optimist,Pesimist,Laplace,Savage,Negativ,Pozitiv,PNGF
     print(f"Savage: {Savage}")
     HurwitzevKriterij(Header,Pozitiv,Negativ)
     print(f"Graf Hurwitzovega kriterija je bil shranjen v datoteko ('{PNGFile}').")
-
-
 
 def HurwitzevKriterij(Header,Pozitiv,Negativ):
     print("Hurwitzev kriterij:")
