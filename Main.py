@@ -19,7 +19,22 @@ def main():
     Pozitiv,Negativ = ReadCsvAndReturnValues(Header,FilePath)
     PNGData = HurwitzevKriterijPNG(Header,Pozitiv,Negativ)
     CreatePNGAndSave(PNGFile, PNGData,len(Header))
-    Output(FilePath,Header,Optimist(Pozitiv),Pesimist(Negativ),Laplace(Pozitiv,Negativ),Savage(Pozitiv,Negativ),Negativ,Pozitiv,PNGFile)
+    valueLaplace,indexLaplace = Laplace(Pozitiv,Negativ)
+    vlaueSavage,indexSavage  = Savage(Pozitiv,Negativ)
+    from matplotlib import pyplot as plt
+    import numpy as np
+
+    import plotly.express as px
+
+    df = plt.data.gapminder().query("country=='Canada'")
+    fig = plt.line(df, x="year", y="lifeExp", title='Life expectancy in Canada')
+    
+    plt.savefig("plot.png")
+    fig.show()
+
+    
+
+    #Output(FilePath,Header,Optimist(Pozitiv),Pesimist(Negativ),valueLaplace,indexLaplace,vlaueSavage,indexSavage,Negativ,Pozitiv,PNGFile)
     
 def CreatePNGAndSave(filename, text,lenght):
     fnt = ImageFont.truetype('arial.ttf', 40)
@@ -40,7 +55,10 @@ def Savage(Pozitivno,Negativno):
         SavageNegativ.append(MaxNegativ - Negativno[x])  
     for y in range(len(SavageNegativ)):
         SavageMax.append(max(SavageNegativ[y],SavagePozitiv[y]))
-    return min(SavageMax)
+       
+    min_value = min(SavageMax)
+    index = SavageMax.index(min_value)
+    return min(SavageMax),index
 
     
 def Laplace(Pozitivno,Negativno):
@@ -48,7 +66,9 @@ def Laplace(Pozitivno,Negativno):
     for x in range (len(Pozitivno)):
 
         AvrageByColumn.append(((Pozitivno[x]+Negativno[x])/2))
-    return(max(AvrageByColumn))
+    max_value = max(AvrageByColumn)
+    index = AvrageByColumn.index(max_value)
+    return max(AvrageByColumn),index
 def Optimist(List):#Izbere najvecjo stevilko
     return max(List)
 def Pesimist(List):
@@ -102,13 +122,15 @@ def GetConfig():
     file_name = 'Config.ini'
     file_path = os.path.join(current_directory, file_name)
     return file_path
-def Output(FilePath,Header,Optimist,Pesimist,Laplace,Savage,Negativ,Pozitiv,PNGFile):
+def Output(FilePath,Header,Optimist,Pesimist,Laplace,LaplaceIndex,Savage,SavageIndex,Negativ,Pozitiv,PNGFile):
+    indexofOptimist = Pozitiv.index(Optimist)
+    indexofPesimist = Negativ.index(Pesimist)
     print("Izračun osnovnih metod odločanja.")
     print('Prebrana je bila datoteka "'+FilePath.split("\\")[-1]+'.')
-    print(f"Optimist: {Optimist}")
-    print(f"Pesimist: {Pesimist}")
-    print(f"Laplace: {Laplace}")
-    print(f"Savage: {Savage}")
+    print(f"Optimist:{Header[indexofOptimist+1]} {Optimist}")
+    print(f"Pesimist:{Header[indexofPesimist+1]} {Pesimist}")
+    print(f"Laplace:{Header[LaplaceIndex+1]} {Laplace}")
+    print(f"Savage: {Header[SavageIndex+1]} {Savage}")
     HurwitzevKriterij(Header,Pozitiv,Negativ)
     print(f"Graf Hurwitzovega kriterija je bil shranjen v datoteko ('{PNGFile}').")
 
