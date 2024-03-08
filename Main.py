@@ -1,8 +1,11 @@
 from PIL import Image, ImageDraw, ImageFont
+from matplotlib import pyplot as plt
 import os
 import sys
 import configparser
 import csv
+import numpy as np
+
 def main():
     #Initialization
     IniFilePath = ""
@@ -10,7 +13,6 @@ def main():
     Header= []
     Pozitiv = []
     Negativ =[]
-    PNGFile = "graf.png"
     PNGData = ""
     #Main
     IniFilePath = GetConfig()
@@ -18,31 +20,10 @@ def main():
     Header = ReadHeader(FilePath)
     Pozitiv,Negativ = ReadCsvAndReturnValues(Header,FilePath)
     PNGData = HurwitzevKriterijPNG(Header,Pozitiv,Negativ)
-    CreatePNGAndSave(PNGFile, PNGData,len(Header))
     valueLaplace,indexLaplace = Laplace(Pozitiv,Negativ)
     vlaueSavage,indexSavage  = Savage(Pozitiv,Negativ)
-    from matplotlib import pyplot as plt
-    import numpy as np
-
-    import plotly.express as px
-
-    df = plt.data.gapminder().query("country=='Canada'")
-    fig = plt.line(df, x="year", y="lifeExp", title='Life expectancy in Canada')
+    Output(FilePath,Header,Optimist(Pozitiv),Pesimist(Negativ),valueLaplace,indexLaplace,vlaueSavage,indexSavage,Negativ,Pozitiv)
     
-    plt.savefig("plot.png")
-    fig.show()
-
-    
-
-    #Output(FilePath,Header,Optimist(Pozitiv),Pesimist(Negativ),valueLaplace,indexLaplace,vlaueSavage,indexSavage,Negativ,Pozitiv,PNGFile)
-    
-def CreatePNGAndSave(filename, text,lenght):
-    fnt = ImageFont.truetype('arial.ttf', 40)
-    image = Image.new(mode="RGB", size=((lenght*300),800), color="white")
-    draw = ImageDraw.Draw(image)
-    draw.text((10, 10), text, font=fnt, fill=(0, 0, 0))
-    image.save(filename)
-    print(f"Image '{filename}' saved successfully.")
     
 def Savage(Pozitivno,Negativno):
     SavagePozitiv = []
@@ -122,7 +103,7 @@ def GetConfig():
     file_name = 'Config.ini'
     file_path = os.path.join(current_directory, file_name)
     return file_path
-def Output(FilePath,Header,Optimist,Pesimist,Laplace,LaplaceIndex,Savage,SavageIndex,Negativ,Pozitiv,PNGFile):
+def Output(FilePath,Header,Optimist,Pesimist,Laplace,LaplaceIndex,Savage,SavageIndex,Negativ,Pozitiv):
     indexofOptimist = Pozitiv.index(Optimist)
     indexofPesimist = Negativ.index(Pesimist)
     print("Izračun osnovnih metod odločanja.")
@@ -132,7 +113,7 @@ def Output(FilePath,Header,Optimist,Pesimist,Laplace,LaplaceIndex,Savage,SavageI
     print(f"Laplace:{Header[LaplaceIndex+1]} {Laplace}")
     print(f"Savage: {Header[SavageIndex+1]} {Savage}")
     HurwitzevKriterij(Header,Pozitiv,Negativ)
-    print(f"Graf Hurwitzovega kriterija je bil shranjen v datoteko ('{PNGFile}').")
+    
 
 def HurwitzevKriterij(Header,Pozitiv,Negativ):
     print("Hurwitzev kriterij:")
@@ -150,6 +131,7 @@ def HurwitzevKriterij(Header,Pozitiv,Negativ):
         print(" ".join(str(header).ljust(spacing) for header in HurwitzevArray[:]))
 
 def HurwitzevKriterijPNG(Header, Pozitiv, Negativ):
+    ALLHurwitzevArray = []
     result = "Hurwitzev kriterij:\n"
     max_length = max(len(header) for header in Header)
     spacing = max_length + 13 
@@ -161,12 +143,23 @@ def HurwitzevKriterijPNG(Header, Pozitiv, Negativ):
         HurwitzevArray = []
         for z in range(len(Header) - 1):
             HurwitzevArray.append(Hurwitzev((y / 10), Pozitiv[z], Negativ[z]))
+            ALLHurwitzevArray.append(Hurwitzev((y / 10), Pozitiv[z], Negativ[z]))
         result += str(y / 10).ljust(spacingNumber)
         result += " ".join(str(header).ljust(spacing) for header in HurwitzevArray[:]) + "\n"
+    DrawGraf(ALLHurwitzevArray,Header)
     return result
 
-    print()  # Move to the next line
+def DrawGraf(lst,header):
+    povecava = 0
+    for i in range(int(len(lst) / 10)):
+        x = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        y = [lst[povecava], lst[povecava+int(len(lst)/ 10)], lst[povecava+(int(len(lst)/ 10)*2)], lst[povecava+(int(len(lst)/ 10)*3)], lst[povecava+(int(len(lst)/ 10)*4)], lst[povecava+(int(len(lst)/ 10)*5)], lst[povecava+(int(len(lst)/ 10)*6)], lst[povecava+(int(len(lst)/ 10)*7)], lst[povecava+(int(len(lst)/ 10)*8)], lst[povecava+(int(len(lst)/ 10)*9)]]
+        plt.plot(x, y,label=header[povecava+1])
+        plt.xticks(np.linspace(0.1, 1.0, num=10), ['0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0'])
+        povecava += 1
+    plt.legend()
+    plt.savefig('plot.png')
     
-            # Print subsequent rows
+
 if __name__ == '__main__':
     main()  # next section explains the use of sys.exit
